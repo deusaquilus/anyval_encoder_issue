@@ -11,15 +11,9 @@ object MappedEncoderMaker:
   def applyImpl[Encoder[_]: Type, Mapped <: AnyVal: Type](ctx: Expr[AnyValEncoderContext[Encoder, Mapped]])(using qctx: Quotes): Expr[Encoder[Mapped]] =
     import qctx.reflect._
     val tpe = TypeRepr.of[Mapped]
-    val firstParam =
-      tpe.typeSymbol.primaryConstructor.paramSymss match
-        case List(List(first)) => 
-          first
-        case _ => 
-          report.throwError(s"not matched: ${tpe.dealias.show}")
+    val firstParam = tpe.typeSymbol.primaryConstructor.paramSymss(0)(0)
     val firstParamField = tpe.typeSymbol.memberField(firstParam.name)
     val firstParamType = tpe.memberType(firstParamField)
-
     // Try to summon an encoder from the first param type
     firstParamType.asType match
       case '[tt] =>
@@ -30,7 +24,5 @@ object MappedEncoderMaker:
             println(s"========== RETURNING Encoder ${tpe.show} => ${firstParamType.show} Consisting of: ${out.show} =========")
             out
           case None => 
-            report.throwError(
-              s"Cannot find a regular encoder for the AnyVal type ${tpe.show} or a mapped-encoder for it's base type: ${firstParamType.show}"
-            )
-end MappedEncoderMaker
+            report.throwError(s"Cannot find a regular encoder for the AnyVal type ${tpe.show} or a mapped-encoder for it's base type: ${firstParamType.show}")
+

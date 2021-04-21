@@ -3,7 +3,6 @@ package io.getquill.mytest
 class Encoder[T] {
   def apply(element: T): List[String] = List(element.toString)
 }
-
 case class MappedEncoding[I, O](f: I => O)
 
 class EncoderContext { self =>
@@ -13,13 +12,13 @@ class EncoderContext { self =>
       override def apply(element: Mapped) = encoder.apply(mapped.f(element))
     }
 
-  def encoderContext[Cls] = new AnyValEncoderContext[Encoder, Cls] {
-    override def makeMappedEncoder[Base](mapped: MappedEncoding[Cls, Base], encoder: Encoder[Base]): Encoder[Cls] =
-      self.mappedEncoder(mapped, encoder)
-  }
-
   implicit inline def anyValEncoder[Cls <: AnyVal]: Encoder[Cls] =
-    MappedEncoderMaker[Encoder, Cls](encoderContext[Cls])
+    MappedEncoderMaker[Encoder, Cls](
+      new AnyValEncoderContext[Encoder, Cls] {
+        override def makeMappedEncoder[Base](mapped: MappedEncoding[Cls, Base], encoder: Encoder[Base]): Encoder[Cls] =
+          self.mappedEncoder(mapped, encoder)
+      }
+    )
 
   implicit val stringEncoder: Encoder[String] = 
     new Encoder[String] {
