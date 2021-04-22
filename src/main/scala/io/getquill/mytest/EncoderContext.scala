@@ -7,7 +7,7 @@ case class MappedEncoding[I, O](f: I => O)
 
 class EncoderContext { self =>
 
-  def mappedEncoder[Mapped, Base](implicit mapped: MappedEncoding[Mapped, Base], encoder: Encoder[Base]): Encoder[Mapped] =
+  def mappedEncoder[Mapped, Base](mapped: MappedEncoding[Mapped, Base], encoder: Encoder[Base]): Encoder[Mapped] =
     new Encoder[Mapped] {
       override def apply(element: Mapped) = encoder.apply(mapped.f(element))
     }
@@ -16,7 +16,7 @@ class EncoderContext { self =>
     MappedEncoderMaker[Encoder, Cls](
       new AnyValEncoderContext[Encoder, Cls] {
         override def makeMappedEncoder[Base](mapped: MappedEncoding[Cls, Base], encoder: Encoder[Base]): Encoder[Cls] =
-          self.mappedEncoder(mapped, encoder)
+          self; ???
       }
     )
 
