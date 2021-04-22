@@ -3,8 +3,9 @@ package io.getquill.mytest
 import scala.quoted._
 
 object MappedEncoderMaker:
-  inline def apply[Mapped <: AnyVal](inline ctx: EncoderContext): Encoder[Mapped] = ${ applyImpl[Mapped]('ctx) }
-  def applyImpl[Mapped <: AnyVal: Type](ctx: Expr[EncoderContext])(using Quotes): Expr[Encoder[Mapped]] =
+  inline def apply[T <: AnyVal](inline ctx: EncoderContext): Encoder[T] = ${ applyImpl[T]('ctx) }
+  def applyImpl[T <: AnyVal: Type](ctx: Expr[EncoderContext])(using Quotes): Expr[Encoder[T]] =
     import quotes.reflect._
-    '{ new Encoder[Mapped] { def encode(m: Mapped) = $ctx.encode[Mapped](m) } }
+    println(s"===== Creating Instance for: ${Printer.TypeReprShortCode.show(TypeRepr.of[T])}")
+    '{ new Encoder[T] { def encode(m: T) = $ctx.encode[T](m) } }
 
