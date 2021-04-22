@@ -7,6 +7,6 @@ object Example {
     val ctx = new EncoderContext()
     import ctx._
     val w = new Wrap("stuff")
-    SummonAndEncode[Wrap](w) //hellooooooooo
+    SummonAndEncode[Wrap](w)
   }
 }
