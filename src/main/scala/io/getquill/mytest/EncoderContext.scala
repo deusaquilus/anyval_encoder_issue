@@ -5,6 +5,6 @@ class Encoder[T]:
 
 class EncoderContext { self =>
   def encode[Cls](cls: Cls) = List(cls.toString)
-  implicit inline def anyValEncoder[Cls <: AnyVal]: Encoder[Cls] =
+  implicit inline def anyClsEncoder[Cls]: Encoder[Cls] =
     MappedEncoderMaker[Cls](self)
 }
