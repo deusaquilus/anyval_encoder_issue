@@ -13,7 +13,7 @@ class EncoderContext { self =>
     }
 
   implicit inline def anyValEncoder[Cls <: AnyVal]: Encoder[Cls] =
-    MappedEncoderMaker[Encoder, Cls](
+    MappedEncoderMaker[Encoder, Cls].apply(
       new AnyValEncoderContext[Encoder, Cls] {
         override def makeMappedEncoder[Base](mapped: MappedEncoding[Cls, Base], encoder: Encoder[Base]): Encoder[Cls] =
           self.mappedEncoder(mapped, encoder)

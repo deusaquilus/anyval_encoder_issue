@@ -7,8 +7,8 @@ trait AnyValEncoderContext[Encoder[_], Mapped] {
 }
 
 object MappedEncoderMaker:
-  inline def apply[Encoder[_], Mapped <: AnyVal](inline ctx: AnyValEncoderContext[Encoder, Mapped]): Encoder[Mapped] = ${ applyImpl[Encoder, Mapped]('ctx) }
-  def applyImpl[Encoder[_]: Type, Mapped <: AnyVal: Type](ctx: Expr[AnyValEncoderContext[Encoder, Mapped]])(using qctx: Quotes): Expr[Encoder[Mapped]] =
+  inline def apply[Encoder[_], Mapped <: AnyVal]: ((AnyValEncoderContext[Encoder, Mapped]) => Encoder[Mapped]) = ${ applyImpl[Encoder, Mapped] }
+  def applyImpl[Encoder[_]: Type, Mapped <: AnyVal: Type](using qctx: Quotes): Expr[((AnyValEncoderContext[Encoder, Mapped]) => Encoder[Mapped])] =
     import qctx.reflect._
     val tpe = TypeRepr.of[Mapped]
     val firstParam = tpe.typeSymbol.primaryConstructor.paramSymss(0)(0)
@@ -20,7 +20,7 @@ object MappedEncoderMaker:
         Expr.summon[Encoder[tt]] match
           case Some(enc) => 
             val mappedEncoding = '{ MappedEncoding((v:Mapped) => ${ Select('v.asTerm, firstParamField).asExprOf[tt] }) }
-            val out = '{ $ctx.makeMappedEncoder[tt]($mappedEncoding, $enc) }
+            val out = '{ (ctx: AnyValEncoderContext[Encoder, Mapped]) => ctx.makeMappedEncoder[tt]($mappedEncoding, $enc) }
             println(s"========== RETURNING Encoder ${tpe.show} => ${firstParamType.show} Consisting of: ${out.show} =========")
             out
           case None => 
